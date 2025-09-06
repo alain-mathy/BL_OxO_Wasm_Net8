@@ -10,5 +10,11 @@ namespace BL_OxO_Wasm_Net8.Shared.Models
     {
         public string RoomId { get; set; }
         public string RoomName { get; set; }
+
+        public GameRoom(string roomId, string roomName)
+        {
+            RoomId = roomId;
+            RoomName = roomName;
+        }
     }
 }

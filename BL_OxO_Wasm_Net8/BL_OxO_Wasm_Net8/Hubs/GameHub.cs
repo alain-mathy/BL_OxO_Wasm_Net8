@@ -12,5 +12,15 @@ namespace BL_OxO_Wasm_Net8.Hubs
 
             await Clients.Caller.SendAsync("Rooms", _rooms.OrderBy(r => r.RoomName));
         }
+
+        public async Task<GameRoom> CreateRoom(string name, string playerName)
+        {
+            var roomId = Guid.NewGuid().ToString();
+            var room = new GameRoom(roomId, name);
+            _rooms.Add(room);
+            await Clients.All.SendAsync("Rooms", _rooms.OrderBy(r => r.RoomName));
+
+            return room;
+        }
     }
 }
