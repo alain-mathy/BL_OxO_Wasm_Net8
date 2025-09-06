@@ -18,9 +18,33 @@ namespace BL_OxO_Wasm_Net8.Hubs
             var roomId = Guid.NewGuid().ToString();
             var room = new GameRoom(roomId, name);
             _rooms.Add(room);
+
+            var newPlayer = new Player(Context.ConnectionId, playerName);
+            room.AddPlayer(newPlayer);
+
+            await Groups.AddToGroupAsync(Context.ConnectionId, roomId);
             await Clients.All.SendAsync("Rooms", _rooms.OrderBy(r => r.RoomName));
 
             return room;
+        }
+
+        public async Task<GameRoom?> JoinRoom(string roomId, string playerName)
+        {
+            var room = _rooms.FirstOrDefault(r => r.RoomId == roomId);
+            if (room is not null)
+            {
+                var newPlayer = new Player(Context.ConnectionId, playerName);
+                if (room.AddPlayer(newPlayer))
+                {
+                    await Groups.AddToGroupAsync(Context.ConnectionId, roomId);
+                    await Clients.Group(roomId).SendAsync("PlayerJoined", newPlayer);
+                    await Clients.All.SendAsync("Rooms", _rooms.OrderBy(r => r.RoomName));
+                    await Groups.AddToGroupAsync(Context.ConnectionId, roomId);
+                    return room;
+                }
+            }
+
+            return null;
         }
     }
 }

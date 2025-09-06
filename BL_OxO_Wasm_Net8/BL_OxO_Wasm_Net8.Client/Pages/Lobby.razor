@@ -1,13 +1,31 @@
 ﻿@page "/"
+@using BL_OxO_Wasm_Net8.Client.Components
 @using BL_OxO_Wasm_Net8.Shared.Models
 
 @rendermode @(new InteractiveWebAssemblyRenderMode(prerender:false))
 
 <h3>Lobby</h3>
 
-<input placeholder="Player Name" @bind="playerName" />
-<input placeholder="Room Name" @bind="currentRoomName" />
-<button @onclick="CreateRoom">Create Room</button>
+@if (currentRoom is null)
+{
+    <input placeholder="Player Name" @bind="playerName" />
+    <input placeholder="Room Name" @bind="currentRoomName" />
+    <button @onclick="CreateRoom">Create Room</button>
+
+    <h3>Rooms:</h3>
+    <ul>
+        @foreach (var room in rooms)
+        {
+            <li>@room.RoomName <button @onclick="() => JoinRoom(room.RoomId)">Join Room</button></li>
+        }
+    </ul>
+}
+else
+{
+    <CascadingValue Value="hubConnection">
+        <Room CurrentRoom="currentRoom" />
+    </CascadingValue>
+}
 
 @code {
     private HubConnection? hubConnection;
@@ -25,6 +43,8 @@
         hubConnection.On<List<GameRoom>>("Rooms", (roomList) =>
         {
             Console.WriteLine($"Room list count: {roomList.Count}");
+            rooms = roomList;
+            StateHasChanged();
         });
 
         await hubConnection.StartAsync();
@@ -38,5 +58,23 @@
         }
 
         currentRoom = await hubConnection.InvokeAsync<GameRoom>("CreateRoom", currentRoomName, playerName);
+    }
+
+    private async Task JoinRoom(string roomId)
+    {
+        if (hubConnection is null)
+        {
+            return;
+        }
+
+        var joinedRoom = await hubConnection.InvokeAsync<GameRoom>("JoinRoom", roomId, playerName);
+        if (joinedRoom is not null)
+        {
+            currentRoom = joinedRoom;
+        }
+        else
+        {
+            Console.WriteLine("Failed to join room.");
+        }
     }
 }
