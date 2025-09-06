@@ -12,6 +12,11 @@ namespace BL_OxO_Wasm_Net8.Shared.Models
         public string RoomName { get; set; }
         public List<Player> Players { get; set; } = new();
         public OxOGame Game { get; set; } = new OxOGame();
+        public GameRoom(string roomId, string roomName)
+        {
+            RoomId = roomId;
+            RoomName = roomName;
+        }
         public bool AddPlayer(Player player)
         {
             if (Players.Count < 2 && !Players.Any(p => p.ConnectionId == player.ConnectionId))
@@ -30,12 +35,6 @@ namespace BL_OxO_Wasm_Net8.Shared.Models
             }
 
             return false;
-        }
-
-        public GameRoom(string roomId, string roomName)
-        {
-            RoomId = roomId;
-            RoomName = roomName;
         }
     }
 }
