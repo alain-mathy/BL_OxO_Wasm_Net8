@@ -1,4 +1,5 @@
 ﻿@page "/"
+@using BL_OxO_Wasm_Net8.Shared.Models
 
 @rendermode @(new InteractiveWebAssemblyRenderMode(prerender:false))
 
@@ -13,6 +14,21 @@
             .WithUrl(NavMan.ToAbsoluteUri("/gamehub"))
             .Build();
 
+        hubConnection.On<List<GameRoom>>("Rooms", (roomList) =>
+        {
+            Console.WriteLine($"Room list count: {roomList.Count}");
+        });
+
         await hubConnection.StartAsync();
+    }
+
+    private async Task CreateRoom()
+    {
+        if (hubConnection is null)
+        {
+            return;
+        }
+
+        await hubConnection.InvokeAsync("CreateRoom");
     }
 }

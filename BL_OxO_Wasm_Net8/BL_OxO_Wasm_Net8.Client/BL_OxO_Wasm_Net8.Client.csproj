@@ -13,4 +13,8 @@
     <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="8.0.19" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\BL_OxO_Wasm_Net8.Shared\BL_OxO_Wasm_Net8.Shared.csproj" />
+  </ItemGroup>
+
 </Project>
